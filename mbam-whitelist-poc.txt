@@ -1,4 +1,4 @@
-#Proof-of-concept script to take demonstrate incorrect permissions and hardcoded assymetric encryption in Malwarebytes 2.2.1 and prior.  Fixed in 3.0.4.  Provide your own exclusions.dat
+#Proof-of-concept script to take demonstrate incorrect permissions and hardcoded asymmetric encryption in Malwarebytes 2.2.1 and prior.  Fixed in 3.0.4.  Provide your own exclusions.dat
 #By Michael Spaling - provided as-is.  Use at your own risk.
 #http://www.securitytube.net/video/16690
 
